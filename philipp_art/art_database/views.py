@@ -5,11 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib import auth
 from django.http import HttpResponseRedirect
+from .models import Location
+from django.shortcuts import get_object_or_404
 
 @login_required
 def home(request):
+    locations = Location.objects.all()
     return render_to_response('home.html',
-                          [],
+                          {"locations": locations},
                           context_instance=RequestContext(request))
 
 def login(request):
@@ -25,3 +28,20 @@ def login(request):
             return HttpResponseRedirect('/accounts/login')
     else:
         return render(request, 'login.html')
+    
+@login_required
+def edit_location(request, id):
+    if id != '0' :
+        location = get_object_or_404(Location,pk=id)
+        print location
+    else:
+        location = Location()
+    if request.method == 'POST' :
+        location.title = request.POST.get('title', '')
+        location.address = request.POST.get('address', '')
+        location.save()
+        return HttpResponseRedirect('/locations/%s/edit' % location.pk)
+    else:
+        return render_to_response('edit_location.html',
+                              {"location" : location},
+                              context_instance=RequestContext(request))

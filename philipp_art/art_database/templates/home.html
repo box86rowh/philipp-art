@@ -1,4 +1,16 @@
 {% extends 'base.html' %}
+{% block page-title %}
+Art Directory
+{% endblock page-title %}
+{% block page-subtitle %}
+Easily manage, review and export information on your treasures.
+{% endblock page-subtitle %}
 {% block page-content %}
-CONTENT
+<div class="pure-g">
+{% for location in locations %}
+<div class="pure-u-1 pure-u-md-1-3 pure-u-lg-1-4">
+{{location.title}}
+</div>
+{% endfor %}
+</div>
 {% endblock page-content %}

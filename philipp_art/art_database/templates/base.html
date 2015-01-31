@@ -9,8 +9,14 @@
     name="description">
 
     <title>Side Menu &ndash; Layout Examples &ndash; Pure</title>
-    <link href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css" rel=
-    "stylesheet"><!--[if lte IE 8]>
+    <link href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css" rel="stylesheet">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
         <link rel="stylesheet" href="{% static "css/layouts/side-menu-old-ie.css" %}">
     <![endif]-->
     <!--[if gt IE 8]><!-->
@@ -30,19 +36,25 @@
 
                 <ul>
                     <li>
-                        <a href="#">Home</a>
+                        <a href="/">Home</a>
                     </li>
-
                     <li>
-                        <a href="#">About</a>
+                        <a href="/">Kansas City</a>
                     </li>
-
-                    <li class="menu-item-divided pure-menu-selected">
-                        <a href="#">Services</a>
-                    </li>
-
                     <li>
-                        <a href="#">Contact</a>
+                        <a href="/">Grayslake</a>
+                    </li>
+                    <li>
+                        <a href="/">Hardheim</a>
+                    </li>
+                    <li>
+                        <a href="/locations/0/edit">Add Location</a>
+                    </li>
+                    <li>
+                        <a href="#">Add Piece</a>
+                    </li>
+                    <li>
+                        <a href="#">Batch Add</a>                    
                     </li>
                 </ul>
             </div>
