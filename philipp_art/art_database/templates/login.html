@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block page-title %}
+Login
+{% endblock page-title %}
+{% block page-subtitle %}
+Login securely below to continue
+{% endblock page-subtitle %}
+{% block page-content %}
+<form class="pure-form pure-form-stacked" method="post">
+{% csrf_token %}
+    <fieldset>
+        <legend>Login</legend>
+
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Username">
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Password">
+
+        <label for="remember" class="pure-checkbox">
+            <input id="remember" type="checkbox"> Remember me
+        </label>
+
+        <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+    </fieldset>
+</form>
+{% endblock page-content %}
