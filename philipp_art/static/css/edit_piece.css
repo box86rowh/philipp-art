@@ -1,0 +1,46 @@
+.photo-thumb{
+    margin-left: 5px;
+    margin-right: 5px;
+    position: relative;
+    padding-bottom: 70%;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid #191818;
+}
+.photo-thumb img{
+    max-width: 100%;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    left: 0px;  
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+a.delete-button{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: block;
+    z-index: 10;
+    color: red;
+    font-size: 20px;
+}
+a.preview-button{
+    position: absolute;
+    right: 35px;
+    bottom: 10px;
+    display: block;
+    z-index: 10;
+    color: blue;
+    font-size: 20px;
+}
+#progress{
+    height: 30px;
+    margin-bottom: 20px;
+}
+#progress .progress-bar{
+    background-color: green;
+    height: 30px;
+    width: 0%;
+}

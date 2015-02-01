@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% load thumbnail %}
+{% load staticfiles %}
+{% load humanize %} 
+
+{% block head-stuff %}
+<link href="{% static "css/art_list.css" %}" rel="stylesheet">
+{% endblock head-stuff %}
+
+{% block page-title %}
+{{ location.title }} Art List
+{% endblock page-title %}
+
+{% block page-subtitle %}
+You can edit a piece by using the edit icon, or export the checked items using the button below.
+{% endblock page-subtitle %}
+
+{% block page-content %}
+<script type="text/javascript">
+function checkAll(){
+      $('.chk').each(function() { //loop through each checkbox
+            this.checked = true;  //select all checkboxes with class "checkbox1"               
+      });
+}
+function exportAll(){
+      var picked = [];
+      $("table.pure-table tr").each(function(){
+           var chk = $(this).find(".chk");
+           var input = $($(this).find("input")[0]);
+           if(chk.is(":checked")){
+                 picked[picked.length] = input.attr("value");           
+            }
+      });
+      if(picked.length == 0){
+            alert("None selected!");      
+      }else{
+            var url = "/art-list/export?include=" + picked.join();
+            window.open(url);
+      }
+}
+function deletePiece(id){
+      if(confirm("Really Delete?")){
+            $.post( "/pieces/" + id + "/delete", function( data ) {
+                location.reload()
+            });   
+      }
+}
+</script>
+<div class="pure-g">
+      <div class="pure-u-1">
+            <table class="pure-table pure-table-striped" style="width: 100%;">
+                  <thead>
+                        <tr>
+                              <th style="width: 15px;">#</th>
+                              <th style="width: 20px;">Export</th>
+                              <th>Summary</th>
+                              <th>Notes</th>
+                              <th style="width: 100px;">Photo</th>
+                              <th style="width: 40px;"></th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                        {% for piece in pieces %}
+                              <tr>
+                                    <td>{{ piece.pk}}<input type="hidden" value="{{ piece.pk }}" /></td>
+                                    <td><input type="checkbox" class="chk" /></td>
+                                    <td><b>Title : </b>{{piece.title}}<br /><b>Artist : </b>{{piece.artist}}<br /><b>Purchase Date : </b>{{piece.purchase_date}}<br /><b>Purchase Price : </b>${{ piece.purchase_price|intcomma }}</td>
+                                    <td>{{piece.notes}}</td>
+                                    <td>
+                                    {% thumbnail piece.photo "150x100" crop="center" as im %}
+                                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                                    {% endthumbnail %}
+                                    </td>
+                                    <td>
+                                    <a href="/pieces/{{piece.pk}}/edit"><i class="fa fa-pencil"></i></a>
+                                    <a href="javascript:deletePiece({{piece.pk}})"><i class="fa fa-trash-o fa-fw"></i></a>
+                                    </td>
+                              </tr>
+                        {% endfor %}
+                  </tbody>
+            </table>
+            <div class="pure-controls" style="margin-top: 30px;">
+                  <a href="javascript:checkAll()" class="pure-button pure-button-secondary">Check All</a>
+                  <a href="javascript:exportAll()" class="pure-button pure-button-primary">Export to XLS</a>
+            </div>
+      </div>
+</div>
+{% endblock page-content %}

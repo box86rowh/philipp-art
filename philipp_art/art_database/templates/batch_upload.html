@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block page-title %}
+Location Editor
+{% endblock page-title %}
+{% block page-subtitle %}
+Setup the location below
+{% endblock page-subtitle %}
+{% block page-content %}
+<form class="pure-form pure-form-stacked" method="post">
+{% csrf_token %}
+    <fieldset>
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" placeholder="Title" value="{{ location.title }}">
+
+        <label for="address">Address</label>
+        <input id="address" name="address" type="text" placeholder="Address" value="{{ location.address }}">
+        <div class="pure-controls" style="margin-top: 20px;">
+            <a class="pure-button pure-button-secondary" href="/">Close</a>        
+            <button type="submit" class="pure-button pure-button-primary">Save</button>
+        </div>
+    </fieldset>
+</form>
+{% endblock page-content %}

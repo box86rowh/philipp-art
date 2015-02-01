@@ -1,3 +1,9 @@
 .content{
-    padding-top: 20px;
+    padding-top: 30px;
+}
+.pad-left{
+    padding-left: 15px;
+}
+.pad-right{
+    padding-right: 15px;
 }

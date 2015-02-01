@@ -36,7 +36,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'art_database',
+    'sorl.thumbnail',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -90,3 +92,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     '/var/www/static/',
 )
+
+THUMBNAIL_DEBUG = True
+
+PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+
+MEDIA_URL = '/media/'
