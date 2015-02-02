@@ -118,7 +118,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/philipp-art.log',
+            'filename': os.path.join(PROJECT_ROOT, "error.log"),
             },
         },
     'loggers': {
