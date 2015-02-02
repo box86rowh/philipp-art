@@ -15,5 +15,5 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'philipp_art.settings.amazon'
 activate_env=os.path.expanduser("/home/ubuntu/.virtualenvs/philipp-art/bin/activate_this.py")
 execfile(activate_env, dict(__file__=activate_env))
 
-import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
