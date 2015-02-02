@@ -118,7 +118,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/ubuntu/django/philipp-art/philipp_art/error.log',
+            'filename': '/var/log/django/philipp-art.log',
             },
         },
     'loggers': {
