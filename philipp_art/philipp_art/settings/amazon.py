@@ -111,37 +111,21 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, "static"),
 )
 
-LOGGING_CONFIG = None
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-        },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-            },
-        'console':{
+        'file': {
             'level': 'DEBUG',
-            'class': 'logging.StreamHandler'
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/philipp-art.log',
             },
         },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['file'],
+            'level': 'DEBUG',
             'propagate': True,
             },
-        'cities': {
-            'handlers': ['console'],
-            'level': 'INFO'
-            },
-
-    }
+        },
 }
