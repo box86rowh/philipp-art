@@ -24,7 +24,10 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'eirich.3drexstaging.com'
+]
 
 # Application definition
 
