@@ -110,3 +110,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     os.path.join(PROJECT_ROOT, "static"),
 )
+
+LOGGING_CONFIG = None
+import logging.config
+logging.config.dictConfig(LOGGING)
