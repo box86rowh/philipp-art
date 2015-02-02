@@ -112,5 +112,3 @@ STATICFILES_DIRS = (
 )
 
 LOGGING_CONFIG = None
-import logging.config
-logging.config.dictConfig(LOGGING)
