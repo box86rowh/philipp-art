@@ -17,7 +17,7 @@ import logging
 import json
 import xlsxwriter
 from xlsxwriter.workbook import Workbook
-from philipp_art.settings import PROJECT_ROOT
+from django.conf import settings
 from zipfile import ZipFile
 import datetime
 try:
@@ -27,6 +27,7 @@ except ImportError:
 
 @login_required
 def home(request):
+    print settings.STATICFILES_DIRS
     locations = Location.objects.all()
     return render_to_response('home.html',
                           {"locations": locations},
