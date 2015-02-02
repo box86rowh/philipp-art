@@ -39,6 +39,22 @@ function exportAll(){
             window.open(url);
       }
 }
+function exportPhotos(){
+      var picked = [];
+      $("table.pure-table tr").each(function(){
+           var chk = $(this).find(".chk");
+           var input = $($(this).find("input")[0]);
+           if(chk.is(":checked")){
+                 picked[picked.length] = input.attr("value");           
+            }
+      });
+      if(picked.length == 0){
+            alert("None selected!");      
+      }else{
+            var url = "/art-list/export-photos?include=" + picked.join();
+            window.open(url);
+      }
+}
 function deletePiece(id){
       if(confirm("Really Delete?")){
             $.post( "/pieces/" + id + "/delete", function( data ) {
@@ -83,6 +99,7 @@ function deletePiece(id){
             <div class="pure-controls" style="margin-top: 30px;">
                   <a href="javascript:checkAll()" class="pure-button pure-button-secondary">Check All</a>
                   <a href="javascript:exportAll()" class="pure-button pure-button-primary">Export to XLS</a>
+                  <a href="javascript:exportPhotos()" class="pure-button pure-button-primary">Export Photos Zip</a>
             </div>
       </div>
 </div>

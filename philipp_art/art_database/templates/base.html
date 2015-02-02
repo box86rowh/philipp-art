@@ -41,6 +41,9 @@
                     <li>
                         <a href="/">Home</a>
                     </li>
+                    {% for location in locations %}
+                        <li><a href="/art-list/location/{{location.pk}}">{{location.title}}</a></li>
+                    {% endfor %}
                     <li>
                         <a href="/locations/0/edit">Add Location</a>
                     </li>
@@ -48,7 +51,7 @@
                         <a href="/pieces/0/edit">Add Piece</a>
                     </li>
                     <li>
-                        <a href="#">Batch Add</a>                    
+                        <a href="/batch-import">Batch Add</a>                    
                     </li>
                 </ul>
             </div>

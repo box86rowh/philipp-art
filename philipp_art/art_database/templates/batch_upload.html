@@ -1,23 +1,89 @@
 {% extends 'base.html' %}
+
+{% load staticfiles %}
+
 {% block page-title %}
-Location Editor
+Batch Importer
 {% endblock page-title %}
+
 {% block page-subtitle %}
-Setup the location below
+Upload 1 photo for each piece blow, after selecting your location
 {% endblock page-subtitle %}
+
+{% block head-stuff %}
+<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+<link rel="stylesheet" href="/static/css/jquery.fileupload.css">
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="/static/js/vendor/jquery.ui.widget.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="/static/js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="/static/js/jquery.fileupload.js"></script>
+<link href="{% static "css/edit_piece.css" %}" rel="stylesheet">
+{% endblock head-stuff %}
+
 {% block page-content %}
 <form class="pure-form pure-form-stacked" method="post">
 {% csrf_token %}
     <fieldset>
-        <label for="title">Title</label>
-        <input id="title" name="title" type="text" placeholder="Title" value="{{ location.title }}">
-
-        <label for="address">Address</label>
-        <input id="address" name="address" type="text" placeholder="Address" value="{{ location.address }}">
-        <div class="pure-controls" style="margin-top: 20px;">
-            <a class="pure-button pure-button-secondary" href="/">Close</a>        
-            <button type="submit" class="pure-button pure-button-primary">Save</button>
-        </div>
+        <label for="location">Location</label>
+        <select name="location" id="location" style="height: 34px;" class="pure-input-1-3">
+                {% for location in locations %}
+                        <option {% if location.pk == piece.location.pk %}selected{% endif %} value="{{location.pk}}">{{location.title}}</option>
+                {% endfor %}
+        </select>
     </fieldset>
 </form>
+<div>
+    <span class="pure-button pure-button-primary fileinput-button">
+        <i class="fa fa-plus"></i>
+        <span>Select files...</span>
+        <!-- The file input field used as target for the file upload widget -->
+        <input id="fileupload" type="file" name="files[]" multiple>
+    </span>
+    <br>
+    <br>
+    <!-- The global progress bar -->
+    <div id="progress" class="progress">
+        <div class="progress-bar progress-bar-success"></div>
+    </div>
+    <!-- The container for the uploaded files -->
+    <div id="files" class="files"></div>
+</div>
+<script type="text/javascript">
+var url = '/pieces/add-with-photo/';
+    $(function () {
+        var url = '/pieces/add-with-photo/' + $("#location").val();
+        $('#fileupload').fileupload({
+            url: url,
+            dataType: 'json',
+            done: function (e, data) {
+                //maybe inject here...
+            },
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+                if(data.loaded == data.total){
+                    location.href = '/art-list/location/' + $("#location").val();        
+                }
+            }
+        }).prop('disabled', !$.support.fileInput)
+            .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        
+        $("#location").change(function(){
+            url = '/pieces/add-with-photo/' + $("#location").val();
+        });      
+        
+    });
+    function deletePhoto(id){
+        if(confirm("Really Delete?")){
+            $.post( "/pieces/{{piece.pk}}/photo/" + id + "/delete", function( data ) {
+                $("#thumb-" + id).remove();
+            });   
+        }
+    }
+</script>
 {% endblock page-content %}

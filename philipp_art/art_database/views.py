@@ -15,11 +15,15 @@ from django.shortcuts import get_object_or_404
 from sorl.thumbnail import get_thumbnail
 import logging
 import json
-import openpyxl
-from openpyxl.cell import get_column_letter
-from openpyxl.styles import Alignment, Style, Font
-from openpyxl.drawing import Image
+import xlsxwriter
+from xlsxwriter.workbook import Workbook
 from philipp_art.settings import PROJECT_ROOT
+from zipfile import ZipFile
+import datetime
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 
 @login_required
 def home(request):
@@ -27,6 +31,14 @@ def home(request):
     return render_to_response('home.html',
                           {"locations": locations},
                           context_instance=RequestContext(request))
+
+@login_required
+def batch_import(request):
+    locations = Location.objects.all()
+    return render_to_response('batch_upload.html',
+                              {"locations": locations},
+                              context_instance=RequestContext(request))
+
 @login_required
 def art_list(request,id=None):
     if id == None:
@@ -106,64 +118,95 @@ def delete_photo(request, piece_id, photo_id):
     return HttpResponse("OK")
 
 @login_required
+def export_photos(request):
+    clist = request.GET.get('include', '')
+    joe = clist.split(',')
+    
+    in_memory = StringIO.StringIO()  
+    zip = ZipFile(in_memory, "a")      
+    
+    for piece in ArtPiece.objects.filter(pk__in=joe):
+        #create a folder for the zip
+        slug = piece.slug()
+        count = 0
+        for photo in piece.photos() :
+            #add photo to zip
+            filename = slug + `count` + '.jpg'
+            zip.write(PROJECT_ROOT + photo.image.url,arcname=filename)
+            count+=1
+    
+    zip.close()
+            
+    #return zip file
+    response = HttpResponse(content_type="application/zip")  
+    response["Content-Disposition"] = "attachment; filename=photos.zip"  
+
+    in_memory.seek(0)      
+    response.write(in_memory.read())
+
+    return response  
+
+@login_required
 @csrf_exempt
 def export(request):
     clist = request.GET.get('include', '')
     joe = clist.split(',')
     
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=mymodel.xlsx'
-    wb = openpyxl.Workbook()
-    ws = wb.get_active_sheet()
-    ws.title = "MyModel"
-
-    row_num = 0
-
-    columns = [
-        (u"ID", 5),
-        (u"Title", 40),
-        (u"Artist", 40),
-        (u"Purchase Date", 20),
-        (u"Purchase Price", 20),
-        (u"Notes", 40),
-        (u"Image", 60),
-    ]
+    output = StringIO.StringIO()
+    workbook = Workbook(output)    
+    worksheet = workbook.add_worksheet()
     
-    alignment = Alignment(wrap_text=True)
+    row = 1
     
-    for col_num in xrange(len(columns)):
-        c = ws.cell(row=row_num + 1, column=col_num + 1)
-        c.value = columns[col_num][0]
-        c.style = Style(font=Font(bold=True))
-        # set column width
-        ws.column_dimensions[get_column_letter(col_num+1)].width = columns[col_num][1]
-
+    header_format = workbook.add_format()
+    header_format.set_bold()
+    header_format.set_text_wrap()
+    
+    inner_format = workbook.add_format()
+    inner_format.set_text_wrap()
+    
+    curr_format = workbook.add_format()
+    curr_format.set_num_format('#,##0.00')
+    
+    date_format = workbook.add_format({'num_format': 'dd/mm/yyyy'})
+    
+    worksheet.set_column(0, 0, 5)
+    worksheet.set_column(1, 2, 20)
+    worksheet.set_column(3, 4, 10)
+    worksheet.set_column(5, 5, 40)
+    worksheet.set_column(6, 6, 60)
+    
+    worksheet.write(0,0,'ID',header_format)
+    worksheet.write(0,1,'Title',header_format)
+    worksheet.write(0,2,'Artist',header_format)
+    worksheet.write(0,3,'Purchase Date',header_format)
+    worksheet.write(0,4,'Purchase Price',header_format)
+    worksheet.write(0,5,'Notes',header_format)
+    worksheet.write(0,6,'Image',header_format)
+    
     for piece in ArtPiece.objects.filter(pk__in=joe):
-        row_num += 1
-        row = [
-            piece.pk,
-            piece.title,
-            piece.artist,
-            piece.purchase_date,
-            piece.purchase_price,
-            piece.notes,
-        ]
+        worksheet.set_row(row, 100)
         
-        for col_num in xrange(len(row)):
-            print col_num + 1
-            c = ws.cell(row=row_num + 1, column=col_num + 1)
-            c.value = row[col_num]
-            c.style = c.style.copy(alignment = alignment)
+        worksheet.write(row,0, piece.pk,inner_format)
+        worksheet.write(row,1,piece.title,inner_format)
+        worksheet.write(row,2,piece.artist,inner_format)
+        worksheet.write(row,3,piece.purchase_date,date_format)
+        worksheet.write(row,4,piece.purchase_price, curr_format)
+        worksheet.write(row,5,piece.notes,inner_format)
         
-        # url = PROJECT_ROOT + piece.photo().url
-        # thumb = get_thumbnail(url, '100x100', crop='center', quality=99)
-        # img = Image(PROJECT_ROOT + thumb.url)        
-        # c = ws.cell(row=row_num + 1, column=20)
-        # img.anchor(c)
-        # ws.add_image(img)
-
-    wb.save(response)
-    return response    
+        url = PROJECT_ROOT + piece.photo().url
+        thumb = get_thumbnail(url, '100x100', crop='center', quality=99)
+        worksheet.insert_image('G' + `row`, PROJECT_ROOT + thumb.url)
+        
+        row = row + 1
+    
+    workbook.close()
+    # construct response
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename=art-export.xlsx"
+    
+    return response   
     
 
 @login_required
@@ -213,3 +256,58 @@ def add_photo_to_piece(request, id):
         return HttpResponse(response_data, content_type='application/json')
     else:
         return HttpResponse("", content_type='application/json')
+    
+@login_required
+@csrf_exempt
+def add_with_photo(request, id):
+    log = logging.getLogger(__name__)
+    if request.method == 'POST':
+        print 'POST'
+        if request.FILES == None:
+            return HttpResponseBadRequest('Must have files attached!')
+        #getting file data for farther manipulations
+        file = request.FILES[u'files[]']
+        wrapped_file = UploadedFile(file)
+        filename = wrapped_file.name
+        file_size = wrapped_file.file.size
+        print 'Got file: "'+str(filename)+'"'
+
+        #create new piece and save
+        piece = ArtPiece()
+        piece.title = ''
+        piece.artist = ''
+        piece.notes = ''
+        piece.location = Location.objects.get(pk = id)
+        piece.purchase_date = datetime.datetime.now()
+        piece.purchase_price = 0
+        piece.save()
+        
+        image = ArtPiecePhoto()
+        image.filename = ''
+        image.image=file
+        image.piece = piece
+        image.save()
+
+        #getting url for photo deletion
+        file_delete_url = '/delete/'
+
+        #getting file url here
+        file_url = '/'
+
+        #getting thumbnail url using sorl-thumbnail
+        im = get_thumbnail(image, "80x80", quality=50)
+        thumb_url = im.url
+
+        #generating json response array
+        result = []
+        result.append({"name":filename, 
+                       "size":file_size,
+                       "id":image.pk,
+                       "url":file_url, 
+                       "thumbnail_url":thumb_url,
+                       "delete_url":file_delete_url+str(image.pk)+'/', 
+                       "delete_type":"POST",})
+        response_data = json.dumps(result)
+        return HttpResponse(response_data, content_type='application/json')
+    else:
+        return HttpResponse("", content_type='application/json')    

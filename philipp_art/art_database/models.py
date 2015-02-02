@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaultfilters import slugify
 
 class Location(models.Model):
     title = models.CharField(max_length=200)
@@ -29,6 +30,9 @@ class ArtPiece(models.Model):
 
     def photos(self):
         return ArtPiecePhoto.objects.filter(piece = self.pk)
+    
+    def slug(self):
+        return slugify(self.title)
 
     def __str__(self):
         return "%s" % self.title
