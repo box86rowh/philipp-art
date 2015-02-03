@@ -105,7 +105,7 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__name__))
 
 THUMBNAIL_DEBUG = True
 
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
+MEDIA_ROOT = '/home/ubuntu/django/philipp-art/philipp_art/media/'
 
 MEDIA_URL = '/media/'
 
