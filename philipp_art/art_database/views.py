@@ -28,7 +28,10 @@ except ImportError:
 
 @login_required
 def home(request):
-    print settings.STATICFILES_DIRS
+    print settings.PROJECT_ROOT
+    
+    print "WOO"
+    
     locations = Location.objects.all()
     return render_to_response('home.html',
                           {"locations": locations},
@@ -121,10 +124,6 @@ def delete_photo(request, piece_id, photo_id):
 
 @login_required
 def export_photos(request):
-    import logging
-    logger = logging.getLogger(__name__)    
-
-    logger.debug("PROJECT ROOT" + PROJECT_ROOT)
     
     clist = request.GET.get('include', '')
     joe = clist.split(',')
