@@ -28,6 +28,7 @@ except ImportError:
 @login_required
 def home(request):
     print settings.STATICFILES_DIRS
+    print 'Saving to ' + settings.MEDIA_ROOT
     locations = Location.objects.all()
     return render_to_response('home.html',
                           {"locations": locations},
@@ -224,8 +225,6 @@ def add_photo_to_piece(request, id):
         filename = wrapped_file.name
         file_size = wrapped_file.file.size
         print 'Got file: "'+str(filename)+'"'
-        
-        print 'Saving to ' + settings.MEDIA_ROOT
     
         #writing file manually into model
         #because we don't need form of any type.
