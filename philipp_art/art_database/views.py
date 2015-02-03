@@ -121,7 +121,10 @@ def delete_photo(request, piece_id, photo_id):
 
 @login_required
 def export_photos(request):
-    print 'project root = ' + PROJECT_ROOT
+    import logging
+    logger = logging.getLogger(__name__)    
+
+    logger.debug("PROJECT ROOT" + PROJECT_ROOT)
     
     clist = request.GET.get('include', '')
     joe = clist.split(',')
