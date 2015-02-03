@@ -133,7 +133,7 @@ def export_photos(request):
         for photo in piece.photos() :
             #add photo to zip
             filename = slug + `count` + '.jpg'
-            zip.write(settings.PROJECT_ROOT + photo.image.url,arcname=filename)
+            zip.write(photo.image.url,arcname=filename)
             count+=1
     
     zip.close()
