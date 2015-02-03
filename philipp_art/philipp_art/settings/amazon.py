@@ -102,7 +102,7 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__name__))
 
 THUMBNAIL_DEBUG = True
 
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
+MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
 
 MEDIA_URL = '/media/'
 
