@@ -114,7 +114,9 @@ Setup the art piece below
                     progress + '%'
                 );
                 if(data.loaded == data.total){
-                    location.reload();              
+                    setTimeout(function(){
+                        location.reload(); 
+                    }, 2000);             
                 }
             }
         }).prop('disabled', !$.support.fileInput)
