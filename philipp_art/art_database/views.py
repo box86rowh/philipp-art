@@ -133,7 +133,7 @@ def export_photos(request):
         for photo in piece.photos() :
             #add photo to zip
             filename = slug + `count` + '.jpg'
-            zip.write(PROJECT_ROOT + photo.image.url,arcname=filename)
+            zip.write(settings.PROJECT_ROOT + photo.image.url,arcname=filename)
             count+=1
     
     zip.close()
@@ -195,9 +195,9 @@ def export(request):
         worksheet.write(row,4,piece.purchase_price, curr_format)
         worksheet.write(row,5,piece.notes,inner_format)
         
-        url = PROJECT_ROOT + piece.photo().url
+        url = settings.PROJECT_ROOT + piece.photo().url
         thumb = get_thumbnail(url, '100x100', crop='center', quality=99)
-        worksheet.insert_image('G' + `row`, PROJECT_ROOT + thumb.url)
+        worksheet.insert_image('G' + `row`, settings.PROJECT_ROOT + thumb.url)
         
         row = row + 1
     
