@@ -17,7 +17,6 @@ import logging
 import json
 import xlsxwriter
 from xlsxwriter.workbook import Workbook
-from philipp_art.settings.local import PROJECT_ROOT
 from django.conf import settings
 from zipfile import ZipFile
 import datetime
