@@ -101,7 +101,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-PROJECT_ROOT = '/home/ubuntu/django/philipp-art/philipp_art/'
+PROJECT_ROOT = os.path.dirname(os.path.realpath(__name__))
 
 THUMBNAIL_DEBUG = True
 
