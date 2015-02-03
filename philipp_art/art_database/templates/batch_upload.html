@@ -52,32 +52,35 @@ Upload 1 photo for each piece blow, after selecting your location
 </div>
 <script type="text/javascript">
 var url = '/pieces/add-with-photo/';
+    var url = '';
     $(function () {
-        var url = '/pieces/add-with-photo/' + $("#location").val();
-        $('#fileupload').fileupload({
-            url: url,
-            dataType: 'json',
-            done: function (e, data) {
-                //maybe inject here...
-            },
-            progressall: function (e, data) {
-                var progress = parseInt(data.loaded / data.total * 100, 10);
-                $('#progress .progress-bar').css(
-                    'width',
-                    progress + '%'
-                );
-                if(data.loaded == data.total){
-                    location.href = '/art-list/location/' + $("#location").val();        
-                }
-            }
-        }).prop('disabled', !$.support.fileInput)
-            .parent().addClass($.support.fileInput ? undefined : 'disabled');
-        
+        setup();
         $("#location").change(function(){
             url = '/pieces/add-with-photo/' + $("#location").val();
+            setup();
         });      
-        
+        $("#location").change();
     });
+    function setup(){
+        $('#fileupload').fileupload({
+                url: url,
+                dataType: 'json',
+                done: function (e, data) {
+                    //maybe inject here...
+                },
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+                    if(data.loaded == data.total){
+                        location.href = '/art-list/location/' + $("#location").val();        
+                    }
+                }
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+    }
     function deletePhoto(id){
         if(confirm("Really Delete?")){
             $.post( "/pieces/{{piece.pk}}/photo/" + id + "/delete", function( data ) {
