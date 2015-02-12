@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from .models import Location
 from .models import ArtPiece
 from .models import ArtPiecePhoto
+from .models import ArtPieceDocument
 from django.shortcuts import get_object_or_404
 from sorl.thumbnail import get_thumbnail
 import logging
@@ -122,6 +123,13 @@ def delete_photo(request, piece_id, photo_id):
     return HttpResponse("OK")
 
 @login_required
+@csrf_exempt
+def delete_document(request, piece_id, document_id):
+    doc = ArtPieceDocument.objects.get(pk=document_id)
+    doc.delete()
+    return HttpResponse("OK")
+
+@login_required
 def export_photos(request):
     
     clist = request.GET.get('include', '')
@@ -136,8 +144,8 @@ def export_photos(request):
         count = 0
         for photo in piece.photos() :
             #add photo to zip
-            filename = slug + `count` + '.jpg'
-            zip.write(settings.PROJECT_ROOT + photo.image.url,arcname=filename)
+            filename = slug + str(count) + '.jpg'
+            zip.write(settings.PROJECT_ROOT + photo.image.url,arcname=slug + '/' + filename)
             count+=1
     
     zip.close()
@@ -145,6 +153,35 @@ def export_photos(request):
     #return zip file
     response = HttpResponse(content_type="application/zip")  
     response["Content-Disposition"] = "attachment; filename=photos.zip"  
+
+    in_memory.seek(0)      
+    response.write(in_memory.read())
+
+    return response  
+
+@login_required
+def export_documents(request):
+
+    clist = request.GET.get('include', '')
+    joe = clist.split(',')
+
+    in_memory = StringIO.StringIO()  
+    zip = ZipFile(in_memory, "a")      
+
+    for piece in ArtPiece.objects.filter(pk__in=joe):
+        #create a folder for the zip
+        slug = piece.slug()
+        count = 0
+        for doc in piece.documents() :
+            #add photo to zip
+            zip.write(settings.PROJECT_ROOT + doc.document.url,arcname=slug + '/' + doc.filename())
+            count+=1
+
+    zip.close()
+
+    #return zip file
+    response = HttpResponse(content_type="application/zip")  
+    response["Content-Disposition"] = "attachment; filename=documents.zip"  
 
     in_memory.seek(0)      
     response.write(in_memory.read())
@@ -201,7 +238,7 @@ def export(request):
         
         url = settings.PROJECT_ROOT + piece.photo().url
         thumb = get_thumbnail(url, '100x100', crop='center', quality=99)
-        worksheet.insert_image('G' + `row`, settings.PROJECT_ROOT + thumb.url)
+        worksheet.insert_image('G' + `row + 1`, settings.PROJECT_ROOT + thumb.url)
         
         row = row + 1
     
@@ -261,6 +298,48 @@ def add_photo_to_piece(request, id):
         return HttpResponse(response_data, content_type='application/json')
     else:
         return HttpResponse("", content_type='application/json')
+    
+@login_required
+@csrf_exempt
+def add_document_to_piece(request, id):
+    log = logging.getLogger(__name__)
+    if request.method == 'POST':
+        print 'POST'
+        if request.FILES == None:
+            return HttpResponseBadRequest('Must have files attached!')
+        #getting file data for farther manipulations
+        file = request.FILES[u'files[]']
+        wrapped_file = UploadedFile(file)
+        filename = wrapped_file.name
+        file_size = wrapped_file.file.size
+        print 'Got file: "'+str(filename)+'"'
+
+        #writing file manually into model
+        #because we don't need form of any type.
+        doc = ArtPieceDocument()
+        doc.document=file
+        doc.piece = ArtPiece.objects.get(pk=id)
+        doc.save()
+        print 'File saving done'
+
+        #getting url for photo deletion
+        file_delete_url = '/delete/'
+
+        #getting file url here
+        file_url = '/'
+
+        #generating json response array
+        result = []
+        result.append({"name":filename, 
+                       "size":file_size,
+                       "id":doc.pk,
+                       "url":file_url,
+                       "delete_url":file_delete_url+str(doc.pk)+'/', 
+                       "delete_type":"POST",})
+        response_data = json.dumps(result)
+        return HttpResponse(response_data, content_type='application/json')
+    else:
+        return HttpResponse("", content_type='application/json')    
     
 @login_required
 @csrf_exempt

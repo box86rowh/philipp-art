@@ -55,6 +55,22 @@ function exportPhotos(){
             window.open(url);
       }
 }
+function exportDocs(){
+      var picked = [];
+      $("table.pure-table tr").each(function(){
+           var chk = $(this).find(".chk");
+           var input = $($(this).find("input")[0]);
+           if(chk.is(":checked")){
+                 picked[picked.length] = input.attr("value");           
+            }
+      });
+      if(picked.length == 0){
+            alert("None selected!");      
+      }else{
+            var url = "/art-list/export-documents?include=" + picked.join();
+            window.open(url);
+      }
+}
 function deletePiece(id){
       if(confirm("Really Delete?")){
             $.post( "/pieces/" + id + "/delete", function( data ) {
@@ -100,6 +116,7 @@ function deletePiece(id){
                   <a href="javascript:checkAll()" class="pure-button pure-button-secondary">Check All</a>
                   <a href="javascript:exportAll()" class="pure-button pure-button-primary">Export to XLS</a>
                   <a href="javascript:exportPhotos()" class="pure-button pure-button-primary">Export Photos Zip</a>
+                  <a href="javascript:exportDocs()" class="pure-button pure-button-primary">Export Documents Zip</a>
             </div>
       </div>
 </div>

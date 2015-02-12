@@ -34,82 +34,119 @@ Setup the art piece below
 
 {% block page-content %}
 <div class="pure-g">
-<div class="pure-u-1 pure-u-lg-1-3">
-<div class="pad-right">
-    <h3>Piece Details</h3>
-        <form class="pure-form pure-form-stacked" method="post">
-        {% csrf_token %}
-            <fieldset>
-                <label for="title">Title</label>
-                <input id="title" name="title" type="text" placeholder="Title" class="pure-input-1" value="{{ piece.title }}">
-                
-                <label for="artist">Artist</label>
-                <input id="artist" name="artist" type="text" placeholder="Artist" class="pure-input-2-3" value="{{ piece.artist }}">
-                
-                <label for="purchase_date">Purchase Date</label>
-                <input id="purchase_date" name="purchase_date" type="date" placeholder="Date of Purchase" value="{{ piece.purchase_date|date:"Y-m-d" }}">
-                
-                <label for="artist">Purchase Price $</label>
-                <input id="artist" name="purchase_price" type="number" step="any" min="0" max="10000000" placeholder="Purchase Price" value="{{ piece.purchase_price }}">
-        
-                <label for="location">Location</label>
-                <select name="location" id="location" style="height: 34px;" class="pure-input-2-3">
-                        {% for location in locations %}
-                                <option {% if location.pk == piece.location.pk %}selected{% endif %} value="{{location.pk}}">{{location.title}}</option>
+    <div class="pure-u-1 pure-u-lg-1-3">
+        <div class="pad-right">
+            <h3>Piece Details</h3>
+            <form class="pure-form pure-form-stacked" method="post">
+            {% csrf_token %}
+                <fieldset>
+                    <label for="title">Title</label>
+                    <input id="title" name="title" type="text" placeholder="Title" class="pure-input-1" value="{{ piece.title }}">
+                    
+                    <label for="artist">Artist</label>
+                    <input id="artist" name="artist" type="text" placeholder="Artist" class="pure-input-2-3" value="{{ piece.artist }}">
+                    
+                    <label for="purchase_date">Purchase Date</label>
+                    <input id="purchase_date" name="purchase_date" type="date" placeholder="Date of Purchase" value="{{ piece.purchase_date|date:"Y-m-d" }}">
+                    
+                    <label for="artist">Purchase Price $</label>
+                    <input id="artist" name="purchase_price" type="number" step="any" min="0" max="10000000" placeholder="Purchase Price" value="{{ piece.purchase_price }}">
+            
+                    <label for="location">Location</label>
+                    <select name="location" id="location" style="height: 34px;" class="pure-input-2-3">
+                            {% for location in locations %}
+                                    <option {% if location.pk == piece.location.pk %}selected{% endif %} value="{{location.pk}}">{{location.title}}</option>
+                            {% endfor %}
+                    </select>
+                    
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" class="pure-input-1" rows="6">{{piece.notes}}</textarea>
+                    
+                    <div class="pure-controls" style="margin-top: 20px;">
+                        <a class="pure-button pure-button-secondary" href="/">Close</a>        
+                        <button type="submit" class="pure-button pure-button-primary">Save</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-lg-2-3" {% if piece.pk == None %} style="display: none;"{% endif %}>
+    <div class="pad-left">
+    <h3>Photos</h3>
+    <div class="photo-holder">
+    <div class="pure-g">
+    {% for photo in piece.photos %}
+    <div class="pure-u-1-4" id="thumb-{{photo.pk}}">
+        <div class="photo-thumb">
+            {% thumbnail photo.image "400x300" crop="center" as im %}
+                <img src="{{ im.url }}" />
+            {% endthumbnail %}
+            <a class="delete-button" href="javascript:deletePhoto({{photo.pk}})"><i class="fa fa-trash-o"></i></a>
+            <a class="preview-button" href="{{photo.image.url}}" target="_blank"><i class="fa fa-eye"></i></a>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    </div>
+    <div style="margin-top: 20px;">
+        <span class="pure-button pure-button-primary fileinput-button">
+            <i class="fa fa-plus"></i>
+            <span>Select Photos...</span>
+            <!-- The file input field used as target for the file upload widget -->
+            <input id="fileupload" type="file" name="files[]" multiple>
+        </span>
+        <br>
+        <br>
+        <!-- The global progress bar -->
+        <div id="progress" class="progress">
+            <div class="progress-bar progress-bar-success"></div>
+        </div>
+        <!-- The container for the uploaded files -->
+        <div id="files" class="files"></div>
+    </div>
+    <h3>Documents</h3>
+    <table class="pure-table pure-table-striped" style="width: 100%;">
+                  <thead>
+                        <tr>
+                              <th>File Name</th>
+                              <th style="width: 40px;"></th>
+                        </tr>
+                  </thead>
+                  <tbody>
+                        {% for doc in piece.documents %}
+                              <tr>
+                                    <td><a href="{{doc.document.url}}" target="_blank">{{doc.filename}}</a></td>
+                                    <td>
+                                    <a href="javascript:deleteDoc({{doc.pk}})"><i class="fa fa-trash-o fa-fw"></i></a>
+                                    </td>
+                              </tr>
                         {% endfor %}
-                </select>
-                
-                <label for="notes">Notes</label>
-                <textarea id="notes" name="notes" class="pure-input-1" rows="6">{{piece.notes}}</textarea>
-                
-                <div class="pure-controls" style="margin-top: 20px;">
-                    <a class="pure-button pure-button-secondary" href="/">Close</a>        
-                    <button type="submit" class="pure-button pure-button-primary">Save</button>
+                  </tbody>
+            </table>
+            <div class="pure-controls" style="margin-top: 30px;">
+                <span class="pure-button pure-button-primary fileinput-button">
+                <i class="fa fa-plus"></i>
+                <span>Select Documents...</span>
+                <!-- The file input field used as target for the file upload widget -->
+                <input id="docupload" type="file" name="files[]" multiple>
+                </span>
+                <br>
+                <br>
+                <!-- The global progress bar -->
+                <div id="doc-progress" class="progress">
+                    <div class="progress-bar progress-bar-success"></div>
                 </div>
-            </fieldset>
-        </form>
+                <!-- The container for the uploaded files -->
+                <div id="doc-files" class="files"></div>
+            </div>
     </div>
-</div>
-<div class="pure-u-1 pure-u-lg-2-3" {% if piece.pk == None %} style="display: none;"{% endif %}>
-<div class="pad-left">
-<h3>Photos</h3>
-<div class="photo-holder">
-<div class="pure-g">
-{% for photo in piece.photos %}
-<div class="pure-u-1-4" id="thumb-{{photo.pk}}">
-    <div class="photo-thumb">
-        {% thumbnail photo.image "400x300" crop="center" as im %}
-            <img src="{{ im.url }}" />
-        {% endthumbnail %}
-        <a class="delete-button" href="javascript:deletePhoto({{photo.pk}})"><i class="fa fa-trash-o"></i></a>
-        <a class="preview-button" href="{{photo.image.url}}" target="_blank"><i class="fa fa-eye"></i></a>
+    
     </div>
-</div>
-{% endfor %}
-</div>
-</div>
-<div>
-    <span class="pure-button pure-button-primary fileinput-button">
-        <i class="fa fa-plus"></i>
-        <span>Select files...</span>
-        <!-- The file input field used as target for the file upload widget -->
-        <input id="fileupload" type="file" name="files[]" multiple>
-    </span>
-    <br>
-    <br>
-    <!-- The global progress bar -->
-    <div id="progress" class="progress">
-        <div class="progress-bar progress-bar-success"></div>
-    </div>
-    <!-- The container for the uploaded files -->
-    <div id="files" class="files"></div>
-</div>
-</div>
-</div>
 </div>
 <script type="text/javascript">
     $(function () {
         var url = '/pieces/{{piece.pk}}/add-photo';
+        
         $('#fileupload').fileupload({
             url: url,
             dataType: 'json',
@@ -130,11 +167,42 @@ Setup the art piece below
             }
         }).prop('disabled', !$.support.fileInput)
             .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+        var docurl = '/pieces/{{piece.pk}}/add-document';                        
+        $('#docupload').fileupload({
+            url: docurl,
+            dataType: 'json',
+            done: function (e, data) {
+                //maybe inject here...
+            },
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#doc-progress .progress-bar').css(
+                    'width',
+                    progress + '%'
+                );
+                if(data.loaded == data.total){
+                    setTimeout(function(){
+                        location.reload(); 
+                    }, 2000);             
+                }
+            }
+        }).prop('disabled', !$.support.fileInput)
+            .parent().addClass($.support.fileInput ? undefined : 'disabled');
     });
     function deletePhoto(id){
         if(confirm("Really Delete?")){
             $.post( "/pieces/{{piece.pk}}/photo/" + id + "/delete", function( data ) {
                 $("#thumb-" + id).remove();
+            });   
+        }
+    }
+    function deleteDoc(id){
+        if(confirm("Really Delete?")){
+            $.post( "/pieces/{{piece.pk}}/document/" + id + "/delete", function( data ) {
+                 setTimeout(function(){
+                        location.reload(); 
+                    }, 2000);    
             });   
         }
     }

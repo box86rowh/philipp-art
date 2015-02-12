@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+import os
 
 class Location(models.Model):
     title = models.CharField(max_length=200)
@@ -31,8 +32,11 @@ class ArtPiece(models.Model):
     def photos(self):
         return ArtPiecePhoto.objects.filter(piece = self.pk)
     
+    def documents(self):
+        return ArtPieceDocument.objects.filter(piece = self.pk)    
+    
     def slug(self):
-        return slugify(self.title)
+        return slugify(self.title) if self.title else 'piece-' + str(self.pk)
 
     def __str__(self):
         return "%s" % self.title
@@ -44,3 +48,13 @@ class ArtPiecePhoto(models.Model):
     
     def __str__(self):
         return "%s" % self.filename
+    
+class ArtPieceDocument(models.Model):
+    document = models.FileField(upload_to="", null = True)
+    piece = models.ForeignKey(ArtPiece)
+    
+    def filename(self):
+        return os.path.basename(self.document.name)    
+    
+    def __str__(self):
+        return "%s" % self.document   
